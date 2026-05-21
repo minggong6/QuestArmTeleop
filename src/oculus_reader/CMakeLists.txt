@@ -23,6 +23,7 @@ install(PROGRAMS
   scripts/pub_pose.py
   scripts/pub_delta_pose.py
   scripts/arm_ik_pose_node.py
+  scripts/move_to_init_pose_node.py
   scripts/transformations.py
 
   DESTINATION lib/${PROJECT_NAME}
@@ -38,6 +39,12 @@ install(DIRECTORY
   scripts
   config
   DESTINATION share/${PROJECT_NAME}
+)
+
+# 6. 安装 APK 文件到脚本运行目录（oculus_reader.py 从 __file__ 相对路径查找 APK）
+install(DIRECTORY
+  APK
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 # 6. 打包并导出

@@ -34,7 +34,15 @@ def generate_launch_description():
         }.items(),
     )
 
-    # 2) ros2 run oculus_reader arm_ik_pose_node.py --ros-args --params-file ...
+    # 2) Move arm to init pose via ROS2 topic (waits for agx_arm_ctrl feedback, then exits)
+    move_to_init_pose_node = Node(
+        package="oculus_reader",
+        executable="move_to_init_pose_node.py",
+        name="move_to_init_pose_node",
+        output="screen",
+    )
+
+    # 3) ros2 run oculus_reader arm_ik_pose_node.py --ros-args --params-file ...
     arm_ik_pose_node = Node(
         package="oculus_reader",
         executable="arm_ik_pose_node.py",
@@ -43,7 +51,7 @@ def generate_launch_description():
         parameters=[arm_ik_param_file],
     )
 
-    # 3) ros2 run oculus_reader pub_pose.py --ros-args -p ros_to_arm_rpy:=...
+    # 4) ros2 run oculus_reader pub_pose.py --ros-args -p ros_to_arm_rpy:=...
     pub_pose_node = Node(
         package="oculus_reader",
         executable="pub_pose.py",
@@ -53,7 +61,7 @@ def generate_launch_description():
         arguments=["--ros-args", "-p", "ros_to_arm_rpy:=[-1.5708, 0.0, 0.0]"],
     )
 
-    # 4) ros2 run oculus_reader pub_delta_pose.py
+    # 5) ros2 run oculus_reader pub_delta_pose.py
     pub_delta_pose_node = Node(
         package="oculus_reader",
         executable="pub_delta_pose.py",
@@ -61,7 +69,7 @@ def generate_launch_description():
         output="screen",
     )
 
-    # 5) ros2 run rviz2 rviz2 --ros-args -p config:=...
+    # 6) ros2 run rviz2 rviz2 --ros-args -p config:=...
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -73,6 +81,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             agx_arm_rviz_launch,
+            move_to_init_pose_node,
             arm_ik_pose_node,
             pub_pose_node,
             pub_delta_pose_node,
