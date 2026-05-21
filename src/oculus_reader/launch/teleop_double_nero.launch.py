@@ -54,7 +54,36 @@ def generate_launch_description():
         }.items(),
     )
 
-    # 2) ros2 run oculus_reader arm_ik_pose_node.py --ros-args --params-file ...
+    # 2) Move arms to init pose via ROS2 topic (waits for agx_arm_ctrl feedback, then exits)
+    left_move_to_init_pose_node = Node(
+        package="oculus_reader",
+        executable="move_to_init_pose_node.py",
+        name="left_move_to_init_pose_node",
+        output="screen",
+        parameters=[
+            {
+                "feedback_joint_topic": "/left_arm/feedback/joint_states",
+                "feedback_arm_status_topic": "/left_arm/feedback/arm_status",
+                "move_j_topic": "/left_arm/control/move_j",
+            }
+        ],
+    )
+
+    right_move_to_init_pose_node = Node(
+        package="oculus_reader",
+        executable="move_to_init_pose_node.py",
+        name="right_move_to_init_pose_node",
+        output="screen",
+        parameters=[
+            {
+                "feedback_joint_topic": "/right_arm/feedback/joint_states",
+                "feedback_arm_status_topic": "/right_arm/feedback/arm_status",
+                "move_j_topic": "/right_arm/control/move_j",
+            }
+        ],
+    )
+
+    # 3) ros2 run oculus_reader arm_ik_pose_node.py --ros-args --params-file ...
     left_arm_ik_pose_node = Node(
         package="oculus_reader",
         executable="arm_ik_pose_node.py",
@@ -85,7 +114,7 @@ def generate_launch_description():
         ],
     )
 
-    # 3) ros2 run oculus_reader pub_pose.py --ros-args -p ros_to_arm_rpy:=...
+    # 4) ros2 run oculus_reader pub_pose.py --ros-args -p ros_to_arm_rpy:=...
     pub_pose_node = Node(
         package="oculus_reader",
         executable="pub_pose.py",
@@ -95,7 +124,7 @@ def generate_launch_description():
         arguments=["--ros-args", "-p", "ros_to_arm_rpy:=[-1.5708, 0.0, 0.0]"],
     )
 
-    # 4) ros2 run oculus_reader pub_delta_pose.py
+    # 5) ros2 run oculus_reader pub_delta_pose.py
     # Left hand -> left arm delta pose
     left_pub_delta_pose_node = Node(
         package="oculus_reader",
@@ -138,7 +167,7 @@ def generate_launch_description():
         ],
     )
 
-    # 5) ros2 run rviz2 rviz2 --ros-args -p config:=...
+    # 6) ros2 run rviz2 rviz2 --ros-args -p config:=...
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -151,6 +180,8 @@ def generate_launch_description():
         [
             left_arm_driver_launch,
             right_arm_driver_launch,
+            left_move_to_init_pose_node,
+            right_move_to_init_pose_node,
             left_arm_ik_pose_node,
             right_arm_ik_pose_node,
             left_pub_delta_pose_node,
